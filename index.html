@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Celebrate — AI Event Planner</title>
+  <meta name="description" content="Plan weddings, birthdays and community events with AI: budgets, timelines, vendor checklists and personalised ideas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="brand"><span aria-hidden="true">🎉</span> Celebrate <small>AI Event Planner</small></div>
+    <nav aria-label="Saved plans">
+      <label for="saved" class="sr-only">Open a saved plan</label>
+      <select id="saved"><option value="">My saved plans</option></select>
+      <button type="button" id="newPlan" class="ghost">+ New plan</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Step 1: event details -->
+    <section id="formView" class="card" aria-labelledby="formTitle">
+      <h1 id="formTitle">Plan your celebration in seconds</h1>
+      <p class="lead">Tell us about your event. Gemini builds a budget, timeline, vendor checklist and ideas you can track.</p>
+
+      <form id="eventForm" novalidate>
+        <fieldset class="types">
+          <legend>What are you planning?</legend>
+          <label><input type="radio" name="type" value="wedding" checked><span>💍 Wedding</span></label>
+          <label><input type="radio" name="type" value="birthday"><span>🎂 Birthday</span></label>
+          <label><input type="radio" name="type" value="community"><span>🏘️ Community</span></label>
+          <label><input type="radio" name="type" value="corporate"><span>💼 Corporate</span></label>
+          <label><input type="radio" name="type" value="other"><span>✨ Other</span></label>
+        </fieldset>
+
+        <div class="grid">
+          <label>Event name
+            <input name="name" maxlength="80" placeholder="Priya & Arjun's Wedding" autocomplete="off">
+          </label>
+          <label>Event date
+            <input name="date" type="date" required>
+          </label>
+          <label>Number of guests
+            <input name="guests" type="number" min="1" max="100000" value="150" required>
+          </label>
+          <div class="budget-field">
+            <label for="budget">Total budget</label>
+            <div class="inline">
+              <select name="currency" aria-label="Currency">
+                <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
+                <option>AUD</option><option>CAD</option><option>SGD</option><option>AED</option>
+              </select>
+              <input id="budget" name="budget" type="number" min="0" step="1000" value="1000000" required>
+            </div>
+          </div>
+          <label>City / location
+            <input name="location" maxlength="80" placeholder="Hyderabad, India">
+          </label>
+          <label>Theme or style
+            <input name="theme" maxlength="120" placeholder="Pastel garden, traditional Telugu">
+          </label>
+        </div>
+        <label>Anything else? <span class="hint">(dietary needs, must-haves, things to avoid)</span>
+          <textarea name="notes" maxlength="500" rows="3" placeholder="Mostly vegetarian guests, outdoor evening event, want a live band"></textarea>
+        </label>
+        <p id="formError" class="error" role="alert" hidden></p>
+        <button type="submit" class="primary" id="generateBtn">✨ Generate my plan</button>
+      </form>
+    </section>
+
+    <!-- Step 2: the plan -->
+    <section id="planView" hidden aria-labelledby="planTitle">
+      <div class="card plan-head">
+        <div>
+          <p class="eyebrow" id="planMeta"></p>
+          <h1 id="planTitle" tabindex="-1"></h1>
+          <p id="planSummary"></p>
+          <p id="sourceNote" class="note" hidden></p>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="actions">
+          <button type="button" id="editBtn" class="ghost">✏️ Edit details</button>
+          <button type="button" id="regenBtn" class="ghost">🔄 Regenerate</button>
+          <button type="button" id="printBtn" class="ghost">🖨️ Print / PDF</button>
+          <button type="button" id="deleteBtn" class="ghost danger">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Plan sections">
+        <button role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true">💰 Budget</button>
+        <button role="tab" id="tab-timeline" aria-controls="panel-timeline" aria-selected="false" tabindex="-1">🗓️ Timeline</button>
+        <button role="tab" id="tab-vendors" aria-controls="panel-vendors" aria-selected="false" tabindex="-1">📋 Vendors</button>
+        <button role="tab" id="tab-ideas" aria-controls="panel-ideas" aria-selected="false" tabindex="-1">💡 Ideas</button>
+        <button role="tab" id="tab-day" aria-controls="panel-day" aria-selected="false" tabindex="-1">⏰ Event day</button>
+      </div>
+
+      <div class="card panel" role="tabpanel" id="panel-budget" aria-labelledby="tab-budget"></div>
+      <div class="card panel" role="tabpanel" id="panel-timeline" aria-labelledby="tab-timeline" hidden></div>
+      <div class="card panel" role="tabpanel" id="panel-vendors" aria-labelledby="tab-vendors" hidden></div>
+      <div class="card panel" role="tabpanel" id="panel-ideas" aria-labelledby="tab-ideas" hidden></div>
+      <div class="card panel" role="tabpanel" id="panel-day" aria-labelledby="tab-day" hidden></div>
+
+      <form id="refineForm" class="card refine">
+        <label for="refineInput"><strong>🤖 Ask the planner to change something</strong></label>
+        <div class="inline">
+          <input id="refineInput" maxlength="400" placeholder="e.g. Cut decor by half and add a mehendi night" autocomplete="off">
+          <button type="submit" class="primary" id="refineBtn">Update plan</button>
+        </div>
+        <div class="chips" aria-label="Suggestions">
+          <button type="button" class="chip">Make it more eco-friendly</button>
+          <button type="button" class="chip">Cut costs by 15% without losing the vibe</button>
+          <button type="button" class="chip">Add more ideas for kids</button>
+        </div>
+      </form>
+    </section>
+
+    <div id="loading" class="loading" hidden role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loadingText">Planning your celebration…</p>
+    </div>
+    <p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+  </main>
+
+  <footer>Built for PromptWars Challenge 05 · Powered by Google Gemini · Plans are saved only in this browser.</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

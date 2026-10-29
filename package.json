@@ -1,0 +1,13 @@
+{
+  "name": "celebrate-ai-event-planner",
+  "version": "1.0.0",
+  "description": "GenAI-powered planner for weddings, birthdays and community events (budgets, timelines, vendor checklists, ideas) using Google Gemini.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
