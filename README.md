@@ -17,7 +17,7 @@ Enter your event type, date, guest count, budget, city and theme. **Google Gemin
 ## How it works
 
 ```
-Browser (index.html, main.js)  →  POST /api/plan  →  Google Gemini (gemini-2.5-flash, JSON mode)
+Browser (index.html, main.js)  →  POST /api/plan  →  Google Gemini (gemini-3.8-flash, JSON mode)
                                       │
                          lib/plan-core.js: validates input, builds the prompt,
                          cleans the AI output (budget forced to the exact total,

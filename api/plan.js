@@ -3,7 +3,7 @@
 // The API key stays on the server (GEMINI_API_KEY env var).
 import { normalizeInput, sanitizePlan, buildPrompt, buildRefinePrompt } from '../lib/plan-core.js';
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const ENDPOINT = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 export async function callGemini(prompt, key, fetchImpl = fetch) {
