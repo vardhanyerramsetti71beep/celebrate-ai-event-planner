@@ -17,7 +17,7 @@ Enter your event type, date, guest count, budget, city and theme. **Google Gemin
 ## How it works
 
 ```
-Browser (index.html, app.js)  →  POST /api/plan  →  Google Gemini (gemini-2.5-flash, JSON mode)
+Browser (index.html, main.js)  →  POST /api/plan  →  Google Gemini (gemini-2.5-flash, JSON mode)
                                       │
                          lib/plan-core.js: validates input, builds the prompt,
                          cleans the AI output (budget forced to the exact total,
@@ -50,10 +50,10 @@ npm test                  # 9 unit tests
 ## Project structure
 
 ```
-index.html, styles.css, app.js   Front end
+index.html, styles.css, main.js  Front end
 api/plan.js                      Serverless function that calls Gemini
 lib/plan-core.js                 Input checks, prompts, output cleaning (shared)
 lib/fallback.js                  Template plans when AI is unavailable
-server.js                        Local dev server (not used on Vercel)
+dev-server.js                    Local dev server (not used on Vercel)
 tests/plan.test.js               Unit tests (node --test)
 ```

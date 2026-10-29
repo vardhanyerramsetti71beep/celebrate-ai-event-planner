@@ -1,4 +1,8 @@
 {
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": ".",
   "functions": {
     "api/plan.js": { "maxDuration": 60 }
   },

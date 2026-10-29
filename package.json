@@ -6,7 +6,7 @@
   "private": true,
   "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node server.js",
+    "start": "node dev-server.js",
     "test": "node --test"
   },
   "license": "MIT"

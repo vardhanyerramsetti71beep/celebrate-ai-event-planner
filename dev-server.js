@@ -18,7 +18,7 @@ if (existsSync(path.join(root, '.env'))) {
 const { default: planHandler } = await import('./api/plan.js');
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
-const PUBLIC = new Set(['/index.html', '/styles.css', '/app.js', '/lib/plan-core.js', '/lib/fallback.js']);
+const PUBLIC = new Set(['/index.html', '/styles.css', '/main.js', '/lib/plan-core.js', '/lib/fallback.js']);
 const PORT = Number(process.env.PORT) || 3000;
 
 http.createServer(async (req, res) => {
