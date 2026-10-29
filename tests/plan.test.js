@@ -71,6 +71,20 @@ test('callGemini parses JSON from the response', async () => {
   assert.deepEqual(await callGemini('p', 'k', fakeFetch), { title: 'X' });
 });
 
+test('callGemini retries when Gemini is busy, but not on other errors', async () => {
+  let calls = 0;
+  const busyThenOk = async () => (++calls < 2
+    ? { ok: false, status: 503, text: async () => 'busy' }
+    : { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: '{"a":1}' }] } }] }) });
+  assert.deepEqual(await callGemini('p', 'k', busyThenOk), { a: 1 });
+  assert.equal(calls, 2);
+
+  calls = 0;
+  const notFound = async () => { calls++; return { ok: false, status: 404, text: async () => 'nope' }; };
+  await assert.rejects(callGemini('p', 'k', notFound));
+  assert.equal(calls, 1);
+});
+
 function mockRes() {
   return {
     code: 0, body: null, headers: {},

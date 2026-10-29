@@ -6,7 +6,23 @@ import { normalizeInput, sanitizePlan, buildPrompt, buildRefinePrompt } from '..
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const ENDPOINT = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-export async function callGemini(prompt, key, fetchImpl = fetch) {
+const RETRYABLE = new Set([429, 500, 503]);
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Retries when Gemini is busy (429/5xx), with a short backoff.
+export async function callGemini(prompt, key, fetchImpl = fetch, attempts = 4) {
+  for (let i = 1; ; i++) {
+    try {
+      return await callGeminiOnce(prompt, key, fetchImpl);
+    } catch (err) {
+      if (i >= attempts || !RETRYABLE.has(err.status)) throw err;
+      console.warn(`[api/plan] Gemini busy (${err.status}), retry ${i}/${attempts - 1}`);
+      await wait(1000 * 2 ** (i - 1) + Math.random() * 500);
+    }
+  }
+}
+
+async function callGeminiOnce(prompt, key, fetchImpl) {
   const res = await fetchImpl(ENDPOINT(MODEL), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
@@ -18,7 +34,9 @@ export async function callGemini(prompt, key, fetchImpl = fetch) {
   });
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 300);
-    throw new Error(`Gemini request failed (${res.status}): ${detail}`);
+    const err = new Error(`Gemini request failed (${res.status}): ${detail}`);
+    err.status = res.status;
+    throw err;
   }
   const data = await res.json();
   const text = (data?.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
