@@ -6,10 +6,11 @@ import { normalizeInput, sanitizePlan, buildPrompt, buildRefinePrompt } from '..
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const ENDPOINT = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-const RETRYABLE = new Set([429, 500, 503]);
+// 429 (quota) is not retried: retrying only uses up more quota.
+const RETRYABLE = new Set([500, 503]);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Retries when Gemini is busy (429/5xx), with a short backoff.
+// Retries when Gemini is temporarily overloaded (500/503), with a short backoff.
 export async function callGemini(prompt, key, fetchImpl = fetch, attempts = 4) {
   for (let i = 1; ; i++) {
     try {
@@ -33,7 +34,7 @@ async function callGeminiOnce(prompt, key, fetchImpl) {
     signal: AbortSignal.timeout(50000),
   });
   if (!res.ok) {
-    const detail = (await res.text()).slice(0, 300);
+    const detail = (await res.text()).slice(0, 1200);
     const err = new Error(`Gemini request failed (${res.status}): ${detail}`);
     err.status = res.status;
     throw err;
